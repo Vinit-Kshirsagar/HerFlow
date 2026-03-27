@@ -1,0 +1,78 @@
+# ------------------------------
+# Miscellaneous
+# ------------------------------
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ------------------------------
+# IDE
+# ------------------------------
+*.iml
+*.ipr
+*.iws
+.idea/
+# .vscode/  ← keep if you want to share settings
+
+# ------------------------------
+# Flutter / Dart
+# ------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+
+# Generated
+**/generated_plugin_registrant.dart
+
+# ------------------------------
+# Android
+# ------------------------------
+android/.gradle/
+android/local.properties   # contains SDK path (DO NOT COMMIT)
+android/key.properties     # contains signing configs
+android/app/build/
+
+# ------------------------------
+# iOS
+# ------------------------------
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+
+# ------------------------------
+# Platform build artifacts
+# ------------------------------
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ------------------------------
+# Symbols / Obfuscation
+# ------------------------------
+app.*.symbols
+app.*.map.json
+
+# ------------------------------
+# Secrets (IMPORTANT)
+# ------------------------------
+.env
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist

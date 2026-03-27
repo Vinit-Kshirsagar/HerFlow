@@ -54,4 +54,15 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEF4444);
   static const Color info = Color(0xFF3B82F6);
+
+  // ─── Glassmorphism ───
+  static const Color glassWhite = Color(0xBBFFFFFF);     // ~73% white
+  static const Color glassBorder = Color(0x40FFFFFF);     // ~25% white
+  static const Color glassShadow = Color(0x12000000);     // ~7% black
+
+  // ─── Shimmer / Gradient Accents ───
+  static const Color shimmerBase = Color(0xFFF2A8C8);     // primaryLight
+  static const Color shimmerHighlight = Color(0xFFF9D0E2); // primaryLighter
+  static const Color gradientStart = Color(0xFFE8749A);   // primary
+  static const Color gradientEnd = Color(0xFFC084FC);     // secondary
 }

@@ -25,16 +25,16 @@ class _CalendarScreenState extends State<CalendarScreen>
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350), // was 400
       vsync: this,
     );
     _gridController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500), // was 600
       vsync: this,
     );
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
-      curve: Curves.easeOutCubic,
+      curve: Curves.easeOutQuart, // was easeOutCubic — slightly snappier
     );
     _gridAnimation = CurvedAnimation(
       parent: _gridController,
@@ -86,7 +86,7 @@ class _CalendarScreenState extends State<CalendarScreen>
                     opacity: _gridAnimation,
                     child: SlideTransition(
                       position: Tween<Offset>(
-                        begin: const Offset(0, 0.06),
+                        begin: const Offset(0, 0.04), // was 0.06 — subtler slide-in
                         end: Offset.zero,
                       ).animate(_gridAnimation),
                       child: _buildCalendarGrid(provider),
@@ -218,7 +218,7 @@ class _CalendarScreenState extends State<CalendarScreen>
     }
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200), // was 250 — slightly crisper
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: bgColor,
@@ -482,7 +482,7 @@ class _NavArrowState extends State<_NavArrow> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
         scale: _pressed ? 0.85 : 1.0,
-        duration: const Duration(milliseconds: 120),
+        duration: const Duration(milliseconds: 100), // was 120 — snappier press feel
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(

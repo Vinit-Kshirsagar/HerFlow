@@ -883,10 +883,16 @@ class _StatCardState extends State<_StatCard> {
                 widget.title,
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.textMuted,
+                  fontSize: 11, // subtle reduction for cleaner label hierarchy
                 ),
               ),
               const SizedBox(height: 4),
-              Text(widget.value, style: AppTypography.headingSmall),
+              Text(
+                widget.value,
+                style: AppTypography.headingSmall.copyWith(
+                  fontSize: 17, // slight bump for better readability
+                ),
+              ),
             ],
           ),
         ),

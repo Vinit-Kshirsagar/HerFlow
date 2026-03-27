@@ -76,3 +76,11 @@ app.*.map.json
 *.keystore
 google-services.json
 GoogleService-Info.plist
+# Flutter metadata
+.metadata
+
+# Gradle (global safety)
+.gradle/
+
+# iOS lock (optional but recommended)
+ios/Podfile.lock

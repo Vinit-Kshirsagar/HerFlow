@@ -8,6 +8,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../providers/app_provider.dart';
 import 'main_shell.dart';
+import 'checkin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -381,7 +382,10 @@ class _HomeScreenState extends State<HomeScreen>
             label: 'Check In',
             color: AppColors.primary,
             onTap: () {
-              MainShellScope.of(context)?.navigateTo(2);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CheckInScreen()),
+              );
             },
           ),
         ),
@@ -392,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen>
             label: 'Insights',
             color: AppColors.ovulationGreen,
             onTap: () {
-              MainShellScope.of(context)?.navigateTo(1);
+              MainShellScope.of(context)?.navigateTo(2);
             },
           ),
         ),
@@ -492,7 +496,10 @@ class _HomeScreenState extends State<HomeScreen>
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
               onTap: () {
-                MainShellScope.of(context)?.navigateTo(2);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CheckInScreen()),
+                );
               },
               child: const Padding(
                 padding: EdgeInsets.all(12),

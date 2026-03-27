@@ -4,8 +4,9 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import 'home_screen.dart';
 import 'calendar_screen.dart';
-import 'checkin_screen.dart';
 import 'settings_screen.dart';
+import 'insights_screen.dart';
+import 'community_screen.dart';
 
 /// Provides global tab navigation access from child widgets
 class MainShellScope extends InheritedWidget {
@@ -40,8 +41,8 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   final _screens = const [
     HomeScreen(),
     CalendarScreen(),
-    CheckInScreen(),
-    SettingsScreen(),
+    InsightsScreen(),
+    CommunityScreen(),
   ];
 
   @override
@@ -75,6 +76,21 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     return MainShellScope(
       navigateTo: _navigateTo,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings_rounded, color: AppColors.textSecondary),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
+          ],
+        ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
           switchInCurve: Curves.easeOutCubic,
@@ -138,14 +154,14 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                             onTap: () => _navigateTo(1),
                           ),
                           _NavItem(
-                            icon: Icons.add_circle_outline_rounded,
-                            label: 'Check-in',
+                            icon: Icons.insights_rounded,
+                            label: 'Insights',
                             isActive: _currentIndex == 2,
                             onTap: () => _navigateTo(2),
                           ),
                           _NavItem(
-                            icon: Icons.settings_rounded,
-                            label: 'Settings',
+                            icon: Icons.forum_rounded,
+                            label: 'Community',
                             isActive: _currentIndex == 3,
                             onTap: () => _navigateTo(3),
                           ),

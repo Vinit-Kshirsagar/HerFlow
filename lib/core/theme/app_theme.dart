@@ -23,6 +23,16 @@ class AppTheme {
         outline: AppColors.border,
       ),
       fontFamily: null, // Uses system default sans-serif
+
+      // ─── Page Transitions ───
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
@@ -30,31 +40,40 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: AppTypography.headingMedium,
       ),
+
+      // ─── Enhanced Card Theme ───
       cardTheme: CardThemeData(
         color: AppColors.cardWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.border, width: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: AppColors.border.withValues(alpha: 0.4),
+            width: 0.5,
+          ),
         ),
+        shadowColor: AppColors.glassShadow,
         margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
       ),
+
+      // ─── Elevated Buttons ───
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
           textStyle: AppTypography.button,
         ),
       ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -62,34 +81,40 @@ class AppTheme {
           textStyle: AppTypography.button.copyWith(color: AppColors.primary),
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.cardWhite,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(
+            color: AppColors.border.withValues(alpha: 0.6),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
         labelStyle: AppTypography.labelMedium,
       ),
+
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.primaryLighter,
-        labelStyle: AppTypography.labelMedium.copyWith(color: AppColors.primaryDark),
+        labelStyle:
+            AppTypography.labelMedium.copyWith(color: AppColors.primaryDark),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
+
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.cardWhite,
         selectedItemColor: AppColors.primary,
@@ -99,12 +124,24 @@ class AppTheme {
         selectedLabelStyle: AppTypography.labelSmall,
         unselectedLabelStyle: AppTypography.labelSmall,
       ),
+
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        elevation: 4,
+        elevation: 6,
         shape: CircleBorder(),
       ),
+
+      // ─── Enhanced Dialog Theme ───
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.cardWhite,
+        elevation: 12,
+        shadowColor: AppColors.glassShadow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+        ),
+      ),
+
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 0.5,

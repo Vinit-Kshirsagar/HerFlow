@@ -12,13 +12,54 @@ class CalendarScreen extends StatefulWidget {
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenState extends State<CalendarScreen>
+    with TickerProviderStateMixin {
   late DateTime _currentMonth;
+  late AnimationController _fadeController;
+  late AnimationController _gridController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _gridAnimation;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _gridController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOutCubic,
+    );
+    _gridAnimation = CurvedAnimation(
+      parent: _gridController,
+      curve: Curves.easeOutCubic,
+    );
+    _fadeController.forward();
+    _gridController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _gridController.dispose();
+    super.dispose();
+  }
+
+  void _changeMonth(int delta) {
+    _fadeController.reset();
+    _gridController.reset();
+    setState(() {
+      _currentMonth =
+          DateTime(_currentMonth.year, _currentMonth.month + delta);
+    });
+    _fadeController.forward();
+    _gridController.forward();
   }
 
   @override
@@ -28,8 +69,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
+            bottom: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -39,7 +82,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   const SizedBox(height: 16),
                   _buildWeekdayHeaders(),
                   const SizedBox(height: 8),
-                  _buildCalendarGrid(provider),
+                  FadeTransition(
+                    opacity: _gridAnimation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.06),
+                        end: Offset.zero,
+                      ).animate(_gridAnimation),
+                      child: _buildCalendarGrid(provider),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   _buildLegend(),
                   const SizedBox(height: 16),
@@ -54,36 +106,43 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildMonthNav() {
-    final months = [
+    const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _currentMonth = DateTime(
-                  _currentMonth.year, _currentMonth.month - 1);
-            });
-          },
-          icon: const Icon(Icons.chevron_left, color: AppColors.textPrimary),
-        ),
-        Text(
-          '${months[_currentMonth.month - 1]} ${_currentMonth.year}',
-          style: AppTypography.headingMedium,
-        ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _currentMonth = DateTime(
-                  _currentMonth.year, _currentMonth.month + 1);
-            });
-          },
-          icon: const Icon(Icons.chevron_right, color: AppColors.textPrimary),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.cardWhite,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _NavArrow(
+            icon: Icons.chevron_left_rounded,
+            onTap: () => _changeMonth(-1),
+          ),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: Text(
+              '${months[_currentMonth.month - 1]} ${_currentMonth.year}',
+              style: AppTypography.headingMedium,
+            ),
+          ),
+          _NavArrow(
+            icon: Icons.chevron_right_rounded,
+            onTap: () => _changeMonth(1),
+          ),
+        ],
+      ),
     );
   }
 
@@ -97,6 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     d,
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.textMuted,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -106,21 +166,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarGrid(AppProvider provider) {
-    final firstDay = DateTime(_currentMonth.year, _currentMonth.month, 1);
-    final lastDay = DateTime(_currentMonth.year, _currentMonth.month + 1, 0);
-    // Monday = 1 in DateTime.weekday
-    final startWeekday = firstDay.weekday; // 1 = Monday
+    final firstDay =
+        DateTime(_currentMonth.year, _currentMonth.month, 1);
+    final lastDay =
+        DateTime(_currentMonth.year, _currentMonth.month + 1, 0);
+    final startWeekday = firstDay.weekday;
 
     final cells = <Widget>[];
 
-    // Empty cells before first day
     for (int i = 1; i < startWeekday; i++) {
       cells.add(const SizedBox());
     }
 
-    // Day cells
     for (int day = 1; day <= lastDay.day; day++) {
-      final date = DateTime(_currentMonth.year, _currentMonth.month, day);
+      final date =
+          DateTime(_currentMonth.year, _currentMonth.month, day);
       cells.add(_buildDayCell(date, provider));
     }
 
@@ -139,7 +199,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         date.month == now.month &&
         date.day == now.day;
 
-    // Check if this date has a period
     final isPeriodDay = _isPeriodDay(date, provider.periodEntries);
     final hasCheckIn = _hasCheckIn(date, provider.checkInEntries);
     final isPredicted = _isPredictedPeriod(date, provider);
@@ -158,13 +217,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
       textColor = AppColors.primary;
     }
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         border: isToday
             ? Border.all(color: AppColors.primary, width: 2)
+            : null,
+        boxShadow: isPeriodDay
+            ? [
+                BoxShadow(
+                  color: AppColors.periodRed.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
       child: Stack(
@@ -174,7 +243,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             '${date.day}',
             style: AppTypography.bodyMedium.copyWith(
               color: textColor,
-              fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+              fontWeight: isToday || isPeriodDay
+                  ? FontWeight.bold
+                  : FontWeight.normal,
             ),
           ),
           if (hasCheckIn)
@@ -183,9 +254,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: Container(
                 width: 5,
                 height: 5,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 3,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -202,8 +279,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ? DateTime(
               entry.endDate!.year, entry.endDate!.month, entry.endDate!.day)
           : start.add(const Duration(days: 5));
-      final check =
-          DateTime(date.year, date.month, date.day);
+      final check = DateTime(date.year, date.month, date.day);
       if (!check.isBefore(start) && !check.isAfter(end)) return true;
     }
     return false;
@@ -220,19 +296,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final prediction = provider.prediction;
     if (prediction == null) return false;
     final start = prediction.nextPeriodStart;
-    final end = start.add(
-        Duration(days: prediction.predictedPeriodDuration));
+    final end =
+        start.add(Duration(days: prediction.predictedPeriodDuration));
     return !date.isBefore(start) && !date.isAfter(end);
   }
 
   Widget _buildLegend() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _legendItem(AppColors.periodRed.withValues(alpha: 0.2), 'Period'),
-        _legendItem(AppColors.periodRed.withValues(alpha: 0.08), 'Predicted'),
-        _legendItem(AppColors.primary, 'Check-in', isDot: true),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.cardWhite,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _legendItem(
+              AppColors.periodRed.withValues(alpha: 0.2), 'Period'),
+          _legendItem(
+              AppColors.periodRed.withValues(alpha: 0.08), 'Predicted'),
+          _legendItem(AppColors.primary, 'Check-in', isDot: true),
+        ],
+      ),
     );
   }
 
@@ -245,7 +337,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           decoration: BoxDecoration(
             color: color,
             shape: isDot ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius: isDot ? null : BorderRadius.circular(3),
+            borderRadius: isDot ? null : BorderRadius.circular(4),
           ),
         ),
         const SizedBox(width: 6),
@@ -262,24 +354,65 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildDayDetails(AppProvider provider) {
     final prediction = provider.prediction;
     if (prediction == null) {
-      return const Center(child: Text('Log more data for insights'));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.insights_rounded,
+                  size: 32, color: AppColors.secondary),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Log more data for insights',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textMuted,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text('Next Period', style: AppTypography.headingSmall),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Row(
             children: [
-              const Text('📅', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.periodRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.calendar_today_rounded,
+                    size: 20, color: AppColors.periodRed),
+              ),
+              const SizedBox(width: 14),
               Text(
                 '${prediction.nextPeriodStart.day}/${prediction.nextPeriodStart.month}/${prediction.nextPeriodStart.year}',
                 style: AppTypography.bodyLarge.copyWith(
@@ -288,20 +421,76 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: prediction.confidence.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  color: prediction.confidence.color
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
-                  '${prediction.confidence.emoji} ${prediction.confidence.label}',
-                  style: AppTypography.labelSmall,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: prediction.confidence.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      prediction.confidence.label,
+                      style: AppTypography.labelSmall.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _NavArrow extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _NavArrow({required this.icon, required this.onTap});
+
+  @override
+  State<_NavArrow> createState() => _NavArrowState();
+}
+
+class _NavArrowState extends State<_NavArrow> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.85 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(widget.icon, color: AppColors.textPrimary, size: 22),
+        ),
       ),
     );
   }
